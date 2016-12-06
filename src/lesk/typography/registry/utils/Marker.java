@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.poi.openxml4j.exceptions.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -63,6 +64,7 @@ public class Marker {
 		//String area = null;
 		String street = null;
 		String str = null;
+		String fileName = null;
 		
 		File[] folderEntries = folder.listFiles();
 		for (File entry : folderEntries) //Рекурсивный перебор всех файлов, указанных в папке
@@ -72,15 +74,24 @@ public class Marker {
 				 fileMarker(entry);
 				 continue;
 			 }
-			 str = entry.getName();
-			 if (str.endsWith(".xlsx")){
-				 InputStream file = new FileInputStream(entry);
+			 fileName = entry.getName();
+			 if (fileName.endsWith(".xlsx")){
 				 
-				 XSSFWorkbook wb = new XSSFWorkbook(file);
-				 Sheet sheet = wb.getSheetAt(0);
+				 InputStream file = null;
+				 XSSFWorkbook wbook = null;
+//				 System.out.println(fileName);
+				 try{
+				 file = new FileInputStream(entry);
+				 wbook = new XSSFWorkbook(file);
+				 } catch (NotOfficeXmlFileException e) {
+//						e.printStackTrace();
+						continue;
+				 }
 				 
-				 for (int b =0; b<streetList.size(); b++){
-					 for (int i = 13; i<sheet.getLastRowNum(); i++){
+				 Sheet sheet = wbook.getSheetAt(0);
+				 
+				 for (int b =0; b<streetList.size(); b++){ //Цикл по массиву улиц
+					 for (int i = 13; i<sheet.getLastRowNum(); i++){ //Цикл по реестру
 					 	
 						Row row = sheet.getRow(i);
 					 	Cell cell = row.getCell(1);
@@ -91,30 +102,25 @@ public class Marker {
 					 		row = sheet.createRow(3);
 							cell = row.createCell(0);
 							cell.setCellValue(areaList.get(b));
-							b=streetList.size();
-							break;
+							
+//							System.out.println(areaList.get(b));
+//							b=streetList.size();
+//							break;
 							
 					 	}
 					 
 				 	 }
 				 }
-		 
-				 FileOutputStream fileOut = new FileOutputStream(entry);
-				 wb.write(fileOut);
-				 fileOut.close();
-				 wb.close();
+				 
+				FileOutputStream fileOut = new FileOutputStream(entry);
+				wbook.write(fileOut);
+				fileOut.close();
+				wbook.close();
 				 
 			 }else{continue;}
 			 
 		 }
 		
 	}
-
-	public Marker (){
-		
-		System.out.print("Hello world");
-		
-	}
-	
 	
 }
