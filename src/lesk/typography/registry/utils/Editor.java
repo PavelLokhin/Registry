@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -26,9 +27,14 @@ public class Editor {
 			 }
 			 str = entry.getName();
 			 if (str.endsWith(".xlsx")){
-				 InputStream file = new FileInputStream(entry);
-				 
-				 XSSFWorkbook wb = new XSSFWorkbook(file);
+				 InputStream file = null;
+				 XSSFWorkbook wb = null;
+				 try{
+				 file = new FileInputStream(entry);
+				 wb = new XSSFWorkbook(file);
+				 } catch (NotOfficeXmlFileException e) {
+					 continue;
+				 }
 				 Sheet sheet = wb.getSheetAt(0);
 				 sheet.setFitToPage(true);
 				 

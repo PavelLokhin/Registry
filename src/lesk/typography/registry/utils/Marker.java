@@ -16,14 +16,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class Marker {
 	
-	ArrayList<String> areaList =  new ArrayList<String>();
-	ArrayList<String> streetList =  new ArrayList<String>();
+	ArrayList<String> areaList =  new ArrayList<String>(); //Районы
+	ArrayList<String> streetList =  new ArrayList<String>(); //Улицы
 	
 	
 	public void fileReader(String file){
-		
-		
-		//HashMap<String, String> comSviaz = new HashMap();
 		
 		InputStream in = null;
 		XSSFWorkbook wb = null;
@@ -45,11 +42,9 @@ public class Marker {
 			while (cells.hasNext()){
 				Cell cell = cells.next();
 				if (cell.getColumnIndex() == 0){
-				areaList.add(cell.getStringCellValue());// Наименование района
-				//System.out.println(areaList);
+				areaList.add(cell.getStringCellValue());
 				}else{
-				streetList.add(cell.getStringCellValue());//Наименование улицы
-				//System.out.println(streetList);
+				streetList.add(cell.getStringCellValue());
 				}
 			}
 		}
@@ -60,14 +55,12 @@ public class Marker {
 	//Класс для проставление названия района в реестре согласно улиц, указанных в реестре 
 	public void fileMarker(File folder) throws IOException {
 		
-		//File folder = new File(path);
-		//String area = null;
 		String street = null;
 		String str = null;
 		String fileName = null;
-		
+				
 		File[] folderEntries = folder.listFiles();
-		for (File entry : folderEntries) //Рекурсивный перебор всех файлов, указанных в папке
+		for (File entry : folderEntries) //Перебор всех файлов в указанной папке
 		 {
 			 if (entry.isDirectory())
 			 {
@@ -79,37 +72,34 @@ public class Marker {
 				 
 				 InputStream file = null;
 				 XSSFWorkbook wbook = null;
-//				 System.out.println(fileName);
 				 try{
 				 file = new FileInputStream(entry);
 				 wbook = new XSSFWorkbook(file);
 				 } catch (NotOfficeXmlFileException e) {
-//						e.printStackTrace();
 						continue;
 				 }
 				 
 				 Sheet sheet = wbook.getSheetAt(0);
 				 
-				 for (int b =0; b<streetList.size(); b++){ //Цикл по массиву улиц
-					 for (int i = 13; i<sheet.getLastRowNum(); i++){ //Цикл по реестру
+				 for (int b = 0; b<streetList.size(); b++){ //Цикл по массиву улиц
+					 for (int i = 12; i<sheet.getLastRowNum(); i++){ //Цикл по реестру
 					 	
 						Row row = sheet.getRow(i);
 					 	Cell cell = row.getCell(1);
-					 	str = cell.getStringCellValue().toLowerCase();
-					 	street=streetList.get(b).toLowerCase();
-					 	
+					 	str = cell.getStringCellValue().toLowerCase().trim();
+					 	street=streetList.get(b).toLowerCase().trim();
 					 	if (str.endsWith(street)){  //Сравнение название улицы в реестре с таблицей
 					 		row = sheet.createRow(3);
-							cell = row.createCell(0);
-							cell.setCellValue(areaList.get(b));
+							cell = row.createCell(1);
+							cell.setCellValue(areaList.get(b).toUpperCase());
 							
-//							System.out.println(areaList.get(b));
-//							b=streetList.size();
-//							break;
+							b=streetList.size();
+							break;
 							
 					 	}
 					 
 				 	 }
+					
 				 }
 				 
 				FileOutputStream fileOut = new FileOutputStream(entry);
@@ -121,6 +111,10 @@ public class Marker {
 			 
 		 }
 		
+	}
+	
+	public Marker (){
+		System.out.println("Done");
 	}
 	
 }
